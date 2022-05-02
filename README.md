@@ -12,7 +12,7 @@ Some Important Notes:
 
 Since the original datasets are too large, we are unable to upload it to repository. 
 
-Instead, we upload the preprocessed datasets, which are located in the folder 'Processed Dataset'.
+Instead, we upload the preprocessed datasets, which are located in the folder 'Processed_Dataset.zip'.
 
 The original datasets can be found on Kaggle.
 
