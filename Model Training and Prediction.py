@@ -9,8 +9,7 @@ In this file, we
 1.  splited data set into training data set and test data set.
 2.  performed the 5-fold validation in training data set.
 3.  trained the following models: 
-    LGBM Regressor, Random Forest regression, 
-    Ridge regression, Lasso regression, and KNN regressor.
+    LGBM Regressor, linear regression, ridge regression, and lasso regression.
 4.  performed the 5-fold validation and computed the mean of RMLSE.
 5.  predict on the test data set and computed the mean of RMLSE.
 6.  computed the time cost for each model.
@@ -62,9 +61,6 @@ train_X3, val_features3, train_target3, val_target3 = train_test_split(Train3, t
 lightgbm = LGBMRegressor(objective='regression', learning_rate=0.1, num_leaves=1024,
     feature_fraction=0.8,  bagging_fraction=0.8, bagging_freq=5)
 
-# Random Forest regression
-RandomRegression = RandomForestRegressor()
-
 # Ridge regression
 ridge = Ridge(alpha=0.5)
 
@@ -73,9 +69,6 @@ lasso = Lasso(alpha=0.5)
 
 # Linear regression
 lr = LinearRegression()
-
-# KNN regressor
-knn = KNeighborsRegressor()
 
 # perform 5-fold validation, choose one model each time
 kf = KFold(n_splits=5, random_state=10, shuffle=True)
