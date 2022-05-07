@@ -43,7 +43,7 @@ For reading dataset for each type of energy:
 3. delete column that is useless for modeling (e.g. id)
 4. return the edited dataset
 '''
-def getTrainDate():
+def getTrainData():
 
     Train0 = pd.read_csv('traindata00.csv', sep=',')
     Train0 = encode(Train0)
