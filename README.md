@@ -26,8 +26,8 @@ Link: https://www.kaggle.com/competitions/ashrae-energy-prediction/data
 
 2. Pre-processing (outlier detection): preprocessing1_outlierDetection.R, preProcessing2.py
 
-3. Model training including feature selection and hyper-parameter tuning: Model Training.py
+3. Model training including feature selection and hyper-parameter tuning: Model Training and Prediction.py
 
-4. Model Performance including Cross validation technique implemented: Model Training.py
+4. Model Performance including Cross validation technique implemented: Model Training and Prediction.py
 
-5. Final results: N/A
+5. Final results: Model Training and Prediction.py
