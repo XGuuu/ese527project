@@ -9,7 +9,7 @@ In this file, we
 1.  splited data set into training data set and test data set.
 2.  performed the 5-fold validation in training data set.
 3.  trained the following models: 
-    LGBM Regressor, linear regression, ridge regression, and lasso regression.
+    LGBM Regressor, linear regression, ridge regression, lasso regression, random forest regression and neural network.
 4.  performed the 5-fold validation and computed the mean of RMLSE.
 5.  predict on the test data set and computed the mean of RMLSE.
 6.  computed the time cost for each model.
@@ -21,11 +21,12 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
-from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from lightgbm import LGBMRegressor
+import tensorflow as tf
+from tensorflow import keras
 import preProcessing2 # use methods implemented in preProcessing2.py
 import time
 
@@ -33,13 +34,13 @@ time_start = time.time() # start time
 
 # read in pre-processed data
 # one dataset for one type of meter reading
-Train0, Train1, Train2, Train3 = preProcessing.getTrainData()
+Train0, Train1, Train2, Train3 = preProcessing2.getTrainData()
 
 # split data into target column and feature columns
-target0, features0 = preProcessing.splitData(Train0)
-target1, features1 = preProcessing.splitData(Train1)
-target2, features2 = preProcessing.splitData(Train2)
-target3, features3 = preProcessing.splitData(Train3)
+target0, features0 = preProcessing2.splitData(Train0)
+target1, features1 = preProcessing2.splitData(Train1)
+target2, features2 = preProcessing2.splitData(Train2)
+target3, features3 = preProcessing2.splitData(Train3)
 
 # generate polynomial and interaction features 
 # generate a new feature matrix consisting of all polynomial combinations of the features with degree <= 2
@@ -51,24 +52,10 @@ train_features3 = ploy.fit_transform(features3)
 
 # split each data set into a training data set and a validation (test) data set
 # each training data set or validation data set includes feature data and target value
-train_X0, val_features0, train_target0, val_target0 = train_test_split(Train0, target0, random_state(0))
-train_X1, val_features1, train_target1, val_target1 = train_test_split(Train1, target1, random_state(0))
-train_X2, val_features2, train_target2, val_target2 = train_test_split(Train2, target2, random_state(0))
-train_X3, val_features3, train_target3, val_target3 = train_test_split(Train3, target3, random_state(0))
-
-# in training process, we try several regression models below
-# LGBM Regressor, a GBDT (Gradient Boosting Decision Tree) model
-lightgbm = LGBMRegressor(objective='regression', learning_rate=0.1, num_leaves=1024,
-    feature_fraction=0.8,  bagging_fraction=0.8, bagging_freq=5)
-
-# Ridge regression
-ridge = Ridge(alpha=0.5)
-
-# Lasso regression
-lasso = Lasso(alpha=0.5)
-
-# Linear regression
-lr = LinearRegression()
+train_X0, val_features0, train_target0, val_target0 = train_test_split(Train0, target0, random_state=0)
+train_X1, val_features1, train_target1, val_target1 = train_test_split(Train1, target1, random_state=0)
+train_X2, val_features2, train_target2, val_target2 = train_test_split(Train2, target2, random_state=0)
+train_X3, val_features3, train_target3, val_target3 = train_test_split(Train3, target3, random_state=0)
 
 # perform 5-fold validation, choose one model each time
 kf = KFold(n_splits=5, random_state=10, shuffle=True)
@@ -87,7 +74,42 @@ evaluate_target.extend(val_target3.tolist())
 prediction_target = []
 for i in range(4):
     n = len(test_targets[i])
-    regressor = lightgbm
+
+    # in training process, we try several regression models below
+
+    # LGBM Regressor, a GBDT (Gradient Boosting Decision Tree) model
+    lightgbm = LGBMRegressor(objective='regression', learning_rate=0.1, num_leaves=1024,
+                             feature_fraction=0.8, bagging_fraction=0.8, bagging_freq=5)
+
+    # Ridge regression
+    ridge = Ridge(alpha=1)
+
+    # Lasso regression
+    lasso = Lasso(alpha=1)
+
+    # Linear regression
+    lr = LinearRegression()
+
+    # random forest regression
+    RandomRegression = RandomForestRegressor()
+
+    # Neural network regression
+    a, b = np.shape(featuress[i])
+    inputs = keras.Input(shape=(b,))
+    layer1 = keras.layers.Dense(200, activation=tf.nn.relu)(inputs)
+    layer2 = keras.layers.Dense(200, activation=tf.nn.relu)(layer1)
+    res = keras.layers.Dense(100, activation=tf.nn.relu)(inputs)
+    layer3 = keras.layers.Dense(100, activation=tf.nn.relu)(layer2)
+    layer4 = keras.layers.Dense(100, activation=tf.nn.relu)(layer3 + res)
+    drop = keras.layers.Dropout(0.2)(layer4)
+    out = keras.layers.Dense(1, activation='linear')(drop)
+    nn = keras.Model(inputs, out)
+    nn.compile(loss="mse",
+                    optimizer="Nadam",
+                    metrics=["accuracy"])
+
+    # choose one regression model here
+    regressor = RandomRegression
     RMLSE_mean = []
     test_features = testss[i]
     test_target = test_targets[i]
